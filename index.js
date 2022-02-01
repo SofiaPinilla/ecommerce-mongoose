@@ -12,4 +12,6 @@ mongoose
   .then(() => console.log("conectado a mongoDB con éxito"))
   .catch((err) => console.error(err));
 
+app.use('/products',require('./routes/products'))
+
 app.listen(PORT, console.log(`Servidor levantado en el puerto ${PORT}`));
