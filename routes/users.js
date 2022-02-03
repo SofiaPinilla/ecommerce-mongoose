@@ -7,5 +7,5 @@ router.post('/register',UserController.register)
 router.post('/login',UserController.login)
 router.put('/logout',authentication, UserController.logout)
 // router.delete('/logout',authentication, UserController.logout)
-
+router.get('/info',authentication,UserController.getInfo)
 module.exports = router;

@@ -7,7 +7,12 @@ const OrderSchema = new mongoose.Schema({
         type: ObjectId,
         ref: 'User'
     },
-    deliveryDate: Date
+    deliveryDate: Date,
+    productIds: [
+        {
+          _id: { type: ObjectId, ref: "Product" },
+        },
+      ],  
 }, { timestamps: true });
 
 const Order = mongoose.model('Order', OrderSchema);
