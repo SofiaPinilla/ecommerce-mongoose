@@ -10,5 +10,6 @@ router.get('/name/:name',ProductController.getProductsByName)
 router.delete('/:_id',authentication,ProductController.delete)
 router.put('/:_id',authentication,ProductController.update)
 router.put('/review/:_id',authentication,ProductController.insertComment)
+router.put('/like/:_id',authentication,ProductController.like)
 
 module.exports = router

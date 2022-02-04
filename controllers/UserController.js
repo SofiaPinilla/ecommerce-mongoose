@@ -5,13 +5,19 @@ const { jwt_secret } = require("../config/keys");
 const UserController = {
   async register(req, res) {
     try {
-      const user = await User.create(req.body);
-      res.send({ message: "Usuario registrado con éxito", user });
+      let user = await User.findOne({
+        email: req.body.email,
+      });
+      if (user) return res.status(400).send("Este correo ya esta registrado");
+      user = await User.create(req.body);
+      res.status(201).send({ message: "Usuario registrado con exito", user });
     } catch (error) {
-      console.error(error);
-      res
-        .status(500)
-        .send({ message: "Ha habido un problema al registrar al usuario" });
+      console.error(error.name)
+      if (error.name == "ValidationError") {
+        let errName = await Object.keys(error.errors)[0]
+        res.status(400).send(error.errors[errName].message);
+      }
+      res.status(500).send(error);
     }
   },
   async login(req, res) {
@@ -53,8 +59,8 @@ const UserController = {
           populate: {
             path: "productIds._id",
           },
-        });
-
+        })
+        .populate('wishList')
       res.send(user);
     } catch (error) {
       console.error(error);
