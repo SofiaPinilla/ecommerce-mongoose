@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { jwt_secret } = require("../config/keys");
-
+const transporter = require("../config/nodemailer");
 const UserController = {
   async register(req, res) {
     try {
@@ -12,9 +12,9 @@ const UserController = {
       user = await User.create(req.body);
       res.status(201).send({ message: "Usuario registrado con exito", user });
     } catch (error) {
-      console.error(error.name)
+      console.error(error.name);
       if (error.name == "ValidationError") {
-        let errName = await Object.keys(error.errors)[0]
+        let errName = await Object.keys(error.errors)[0];
         res.status(400).send(error.errors[errName].message);
       }
       res.status(500).send(error);
@@ -60,12 +60,47 @@ const UserController = {
             path: "productIds._id",
           },
         })
-        .populate('wishList')
+        .populate("wishList");
       res.send(user);
     } catch (error) {
       console.error(error);
     }
   },
+  async recoverPassword(req, res) {
+    try {
+      const recoverToken = jwt.sign({ email: req.params.email }, jwt_secret, {
+        expiresIn: "48h",
+      });
+      const url = "http://localhost:3000/users/resetPassword/" + recoverToken;
+      await transporter.sendMail({
+        to: req.params.email,
+        subject: "Recuperar contraseña",
+        html: `<h3> Recuperar contraseña </h3>
+  <a href="${url}">Recuperar contraseña</a>
+  El enlace expirará en 48 horas
+  `,
+      });
+      res.send({
+        message: "Un correo de recuperación se envio a tu dirección de correo",
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  async resetPassword(req, res) {
+    try {
+      const recoverToken = req.params.recoverToken;
+      const payload = jwt.verify(recoverToken, jwt_secret);
+      await User.findOneAndUpdate(
+        { email: payload.email },
+        { password: req.body.password }
+      );
+      res.send({ message: "contraseña cambiada con éxito" });
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
 };
 
 module.exports = UserController;

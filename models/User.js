@@ -29,7 +29,6 @@ const UserSchema = new mongoose.Schema(
 UserSchema.methods.toJSON = function () {
   const user = this._doc;
   delete user.tokens;
-  delete user.password;
   return user;
 };
 const User = mongoose.model("User", UserSchema);
